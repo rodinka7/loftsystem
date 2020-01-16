@@ -94,7 +94,7 @@ module.exports = resp => {
             };
 
             if (image)
-                data.fields.image = path.join('/assets/img', image);
+                data.fields.image = path.join('./assets/img', image);
 
             db.emit('user/update', data)
             .then(response => {

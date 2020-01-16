@@ -13,4 +13,9 @@ ctrl.on('user/delete', require('./user/delete'));
 
 ctrl.on('permission/update', require('./user/permission'));
 
+ctrl.on('news/create', require('./news/create'));
+ctrl.on('news/getAll', require('./news/get'));
+ctrl.on('news/update', require('./news/update'));
+ctrl.on('news/delete', require('./news/delete'));
+
 module.exports = ctrl;

@@ -7,6 +7,7 @@ mongoose.Promise = global.Promise;
 
 const User = require('./models/user');
 const Token = require('./models/refreshToken');
+const News = require('./models/news');
 
 mongoose
   .set('useNewUrlParser', true)
@@ -114,6 +115,54 @@ db.on('permission/update', async resp => {
 
     try {
         const response = await User.updateOne({_id}, {$set: {permission: body}});
+        resp.reply(response);
+    } catch(err){
+        console.log(err);
+        resp.replyErr(err);
+    }
+});
+
+db.on('news/getAll', async resp => {
+    try{
+        const news = await News.find();
+        resp.reply(news.map(item => ({
+            id: item._id,
+            title: item.title,
+            text: item.text,
+            createdAt: item.createdAt,
+            user: item.user
+        })));
+    } catch(err){
+        console.log(err);
+        resp.replyErr(err);
+    }
+});
+
+db.on('news/create', async resp => {
+    try {
+        const news = await News.create(resp.data);
+        resp.reply(news);
+    } catch(err){
+        console.log(err);
+        resp.replyErr(err);
+    }
+});
+
+db.on('news/update', async resp => {
+    const {body, _id} = resp.data;
+
+    try {
+        const response = await News.updateOne({_id}, {$set: body});
+        resp.reply(response);
+    } catch(err){
+        console.log(err);
+        resp.replyErr(err);
+    }
+});
+
+db.on('news/delete', async resp => {
+    try {
+        const response = await News.deleteOne({_id: resp.data});
         resp.reply(response);
     } catch(err){
         console.log(err);

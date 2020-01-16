@@ -6,6 +6,8 @@ const ctrl = require('../controllers');
 const fs = require('fs');
 const path = require('path');
 
+const {checkUserPermissions} = require('../utils');
+
 // const { promisify } = require('util');
 
 // const readFile = promisify(fs.readFile);
@@ -18,6 +20,15 @@ const path = require('path');
 
 function isAuthenticated(req, res, next){
      if (req.isAuthenticated()){
+        next();
+    } else {
+        res.status(403).send({message: 'Доступ запрещен!'});
+    }
+}
+
+function checkPermissions(req, res, next){
+    const { url, method, user } = req;
+    if (checkUserPermissions(url, method, user)){
         next();
     } else {
         res.status(403).send({message: 'Доступ запрещен!'});
@@ -96,26 +107,92 @@ router.patch('/api/profile', isAuthenticated, (req, res, next) => {
     .catch(err => res.status(500).send(err));
 });
 
-router.get('/api/users', isAuthenticated, (req, res, next) => {
-    ctrl.emit('user/getAll')
-    .then(data => res.status(200).send(data))
-    .catch(err => res.status(err.status || 500).send(err));
-});
+router.get(
+    '/api/users',
+    isAuthenticated,
+    checkPermissions,
+    (req, res, next) => {
+        ctrl.emit('user/getAll')
+        .then(data => res.status(200).send(data))
+        .catch(err => res.status(err.status || 500).send(err));
+    }
+);
 
-router.delete('/api/users/:id', isAuthenticated, (req, res, next) => {
-    ctrl.emit('user/delete', req.params.id)
-    .then(data => res.status(200).send(data))
-    .catch(err => res.status(err.status || 500).send(err));
-})
+router.delete(
+    '/api/users/:id',
+    isAuthenticated,
+    checkPermissions,
+    (req, res, next) => {
+        ctrl.emit('user/delete', req.params.id)
+        .then(data => res.status(200).send(data))
+        .catch(err => res.status(err.status || 500).send(err));
+    }
+)
 
-router.patch('/api/users/:id/permission', isAuthenticated, (req, res, next) => {
-    const id = req.params.id;
-    ctrl.emit('permission/update', {
-        body: req.body.permission,
-        _id: id
-    })
-    .then(data => res.status(200).send(data))
-    .catch(err => res.status(err.status || 500).send(err));
-});
+router.patch(
+    '/api/users/:id/permission',
+    isAuthenticated,
+    checkPermissions,
+    (req, res, next) => {
+        const id = req.params.id;
+        ctrl.emit('permission/update', {
+            body: req.body.permission,
+            _id: id
+        })
+        .then(data => res.status(200).send(data))
+        .catch(err => res.status(err.status || 500).send(err));
+    }
+);
+
+router.get(
+    '/api/news',
+    isAuthenticated,
+    checkPermissions,
+    (req, res, next) => {
+        ctrl.emit('news/getAll')
+        .then(data => res.status(200).send(data))
+        .catch(err => res.status(err.status || 500).send(err));
+    }
+);
+
+router.post(
+    '/api/news',
+    isAuthenticated,
+    checkPermissions,
+    (req, res, next) => {
+        ctrl.emit('news/create', {
+            body: req.body,
+            user: req.user
+        })
+        .then(data => res.status(200).send(data))
+        .catch(err => res.status(err.status || 500).send(err));
+    }
+);
+
+router.patch(
+    '/api/news/:id',
+    isAuthenticated,
+    checkPermissions,
+    (req, res, next) => {
+        const _id = req.params.id;
+        ctrl.emit('news/update', {
+            body: req.body,
+            _id
+        })
+        .then(data => res.status(200).send(data))
+        .catch(err => res.status(err.status || 500).send(err));
+    }
+);
+
+router.delete(
+    '/api/news/:id',
+    isAuthenticated,
+    checkPermissions,
+    (req, res, next) => {
+        ctrl.emit('news/delete', req.params.id)
+        .then(data => res.status(200).send(data))
+        .catch(err => res.status(err.status || 500).send(err));
+    }
+);
 
 module.exports = router;

@@ -29,4 +29,27 @@ module.exports.mongoDocToObject = (user, safe) => {
     }
 
     return modified;
+};
+
+module.exports.checkUserPermissions = (url, method, user) => {
+    if (!user.permission) return false;
+
+    const pp = user.permission;
+
+    if (url.indexOf('users') !== -1){
+        if (!pp.settings) return false;
+        if (method === 'GET' && pp.settings.R
+            || method === 'PATCH' && pp.settings.U
+            || method === 'DELETE' && pp.settings.D)
+                return true;
+    }
+
+    if (url.indexOf('news') !== -1){
+        if (!pp.news) return false;
+        if (method === 'GET' && pp.news.R
+            || method === 'PATCH' && pp.news.U
+            || method === 'DELETE' && pp.news.D
+            || method === 'POST' && pp.news.C)
+                return true;
+    }
 }
