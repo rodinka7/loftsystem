@@ -20,7 +20,7 @@ module.exports = resp => {
 
     body.user = {
         ...user,
-        createdAt: new Date()
+        created_at: new Date()
     };
 
     delete body.user.permission;

@@ -8,6 +8,7 @@ const LocalStrategy = require('passport-local').Strategy;
 const session = require('express-session');
 const FileStore = require('session-file-store')(session);
 
+const http = require('http');
 const path = require('path');
 const bcrypt = require('bcrypt');
 const fs = require('fs');
@@ -16,31 +17,35 @@ const { promisify } = require('util');
 const access = promisify(fs.access);
 const mkdir = promisify(fs.mkdir);
 
-require('dotenv').config();
+const {SESSION_SECRET, SESSION_KEY, PORT, UPLOAD} = require('./config');
 
 const app = express();
+const server = http.createServer(app);
+
+global.io = require('socket.io').listen(server);
 
 const routes = require('./routes');
 const db = require('./db');
-const upload = process.env.UPLOAD;
+require('./webSocket');
 
 const loggerFile = fs.createWriteStream('logFile.log', {flag: 'a'});
 app.use(logger('combined', {stream: loggerFile}));
 
-app.use(express.static(path.join(__dirname, '../build')));
-
+app.use(express.static(path.resolve('build')));
 app.use(helmet());
 
-app.use(express.json({limit: '2048kb'}));
-app.use(express.urlencoded({extended: false, limit: 10000}));
+// app.use(express.json({limit: '2048kb'}));
+// app.use(express.urlencoded({extended: false, limit: 10000}));
+app.use(express.json());
+app.use(express.urlencoded({extended: false}));
 
 app.use(cookieParser());
 
 app.use(
     session({
         store: new FileStore(),
-        secret: process.env.SESSION_SECRET,
-        key: process.env.SESSION_KEY,
+        secret: SESSION_SECRET,
+        key: SESSION_KEY,
         resave: false,
         saveUninitialized: true
     })
@@ -75,15 +80,10 @@ passport.use(
             db.emit('user/get', {username, safe: true})
             .then(user => {
                 bcrypt.hash(password, user.salt, (err, hash) => {
-                    if (err){
-                        console.log(err);
-                        return;
-                    }
+                    if (err) return console.log(err);
 
-                    if (hash === user.password && username === user.username){
-                        // const {_id, username, surName, firstName, middleName, image } = user;
+                    if (hash === user.password && username === user.username)
                         return done(null, user);
-                    }
 
                     return done(null, false);
                 });
@@ -93,11 +93,11 @@ passport.use(
     )
 );
 
-const server = app.listen(process.env.PORT, async () => {
+server.listen(PORT, async () => {
     try {
-        await access(upload);
+        await access(UPLOAD);
     } catch(err){
-        await mkdir(upload);
+        await mkdir(UPLOAD);
     }
 
     console.log(`Сервер запущен на порту ${server.address().port}`);

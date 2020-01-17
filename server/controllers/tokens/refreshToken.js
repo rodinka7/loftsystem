@@ -1,6 +1,7 @@
 const db = require('../../db');
 const jwt = require('jsonwebtoken');
 const {createTokens} = require('../../utils');
+const {REFRESH_TOKEN_SECRET} = require('../../config');
 
 function createNewToken(resp){
     const tokens = createTokens(resp.data.user);
@@ -23,7 +24,7 @@ module.exports = resp => {
             resp.replyErr(error);
         }
 
-        jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, decoded) => {
+        jwt.verify(refreshToken, REFRESH_TOKEN_SECRET, (err, decoded) => {
             db.emit('token/delete', refreshToken)
             .then(() => {
                 if (err){

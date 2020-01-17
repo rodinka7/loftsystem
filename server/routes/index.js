@@ -1,22 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const passport = require('passport');
+const path = require('path');
 const ctrl = require('../controllers');
 
-const fs = require('fs');
-const path = require('path');
-
 const {checkUserPermissions} = require('../utils');
-
-// const { promisify } = require('util');
-
-// const readFile = promisify(fs.readFile);
-
-// const React = require('react');
-// const ReactDomServer = require('react-dom/server');
-// const { createStore } = require('redux');
-
-// const App = require('../../src');
 
 function isAuthenticated(req, res, next){
      if (req.isAuthenticated()){
@@ -34,22 +22,6 @@ function checkPermissions(req, res, next){
         res.status(403).send({message: 'Доступ запрещен!'});
     }
 }
-
-router.get('/', (req, res, next) => {
-    // try {
-    //     const data = await readFile(path.join('../../build/index.html', 'utf-8'));
-    //     res.send(
-    //         data.replace(
-    //             `<div id="root"></div>`,
-    //             `<div id="root">${ReactDomServer.renderToString(<App />)}</div>`,
-    //         )
-    //     );
-    // } catch(err){
-    //     console.log(err);
-    //     res.status(500).send('The error is occured while loading sourse!');
-    // }
-    res.render('index');
-});
 
 router.post('/api/registration', (req, res) => {
     ctrl.emit('/api/registration', req.body)

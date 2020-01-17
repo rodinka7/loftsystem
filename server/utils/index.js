@@ -1,14 +1,16 @@
 const jwt = require('jsonwebtoken');
+const db = require('../db');
+const {TOKEN_SECRET, REFRESH_TOKEN_SECRET, TOKEN_LIFE, REFRESH_TOKEN_LIFE } = require('../config');
 
 module.exports.createTokens = user => {
-    const token = jwt.sign(user, process.env.TOKEN_SECRET, {expiresIn: process.env.TOKEN_LIFE});
-    const refreshToken = jwt.sign(user, process.env.REFRESH_TOKEN_SECRET, {expiresIn: process.env.REFRESH_TOKEN_LIFE});
+    const token = jwt.sign(user, TOKEN_SECRET, {expiresIn: TOKEN_LIFE});
+    const refreshToken = jwt.sign(user, REFRESH_TOKEN_SECRET, {expiresIn: REFRESH_TOKEN_LIFE});
 
     return {
         accessToken: token,
         refreshToken: refreshToken,
-        accessTokenExpiredAt: Date.now() + process.env.TOKEN_LIFE * 1000,
-        refreshTokenExpiredAt: Date.now() + process.env.REFRESH_TOKEN_LIFE * 1000,
+        accessTokenExpiredAt: Date.now() + TOKEN_LIFE * 1000,
+        refreshTokenExpiredAt: Date.now() + REFRESH_TOKEN_LIFE * 1000,
     };
 };
 
@@ -52,4 +54,4 @@ module.exports.checkUserPermissions = (url, method, user) => {
             || method === 'POST' && pp.news.C)
                 return true;
     }
-}
+};

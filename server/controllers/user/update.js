@@ -5,11 +5,10 @@ const formidable = require('formidable');
 const path = require('path');
 const fs = require('fs');
 const { promisify } = require('util');
+const {UPLOAD} = require('../../config');
 
 const unlink = promisify(fs.unlink);
 const rename = promisify(fs.rename);
-
-const upload = process.env.UPLOAD;
 
 function validate(fields, files){
     const schema = Joi.object().keys({
@@ -56,7 +55,7 @@ function updatePassword(user, fields){
 module.exports = resp => {
     const form = new formidable.IncomingForm();
     const user = resp.data.user;
-    form.uploadDir = upload;
+    form.uploadDir = UPLOAD;
 
     form.parse(resp.data, async (err, fields, files) => {
         if (err){
@@ -75,7 +74,7 @@ module.exports = resp => {
 
             if (image){
                 try {
-                    await rename(avatar.path, path.join(upload,image));
+                    await rename(avatar.path, path.join(UPLOAD, image));
                 } catch(err){
                     response.replyErr(err)
                 }
