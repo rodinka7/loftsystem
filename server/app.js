@@ -79,6 +79,8 @@ passport.use(
         (username, password, done) => {
             db.emit('user/get', {username, safe: true})
             .then(user => {
+                if (!user) return done(null, false);
+
                 bcrypt.hash(password, user.salt, (err, hash) => {
                     if (err) return console.log(err);
 

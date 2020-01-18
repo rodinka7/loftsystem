@@ -2,7 +2,7 @@ const { EventEmitter } = require('@nauma/eventemitter');
 const db = new EventEmitter('db');
 const mongoose = require('mongoose');
 const { mongoDocToObject } = require('../utils');
-const {MONGO_LOCAL} = require('../config');
+const {MONGO_PROD, MONGO_DEV} = require('../config');
 
 mongoose.Promise = global.Promise;
 
@@ -14,7 +14,8 @@ mongoose
   .set('useNewUrlParser', true)
   .set('useUnifiedTopology', true);
 
-mongoose.connect(MONGO_LOCAL);
+const connection = process.env.NODE_ENV === 'production' ? MONGO_PROD : MONGO_DEV;
+mongoose.connect(connection);
 
 db.on('user/save', async resp => {
     try {

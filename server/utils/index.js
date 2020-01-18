@@ -3,6 +3,7 @@ const db = require('../db');
 const {TOKEN_SECRET, REFRESH_TOKEN_SECRET, TOKEN_LIFE, REFRESH_TOKEN_LIFE } = require('../config');
 
 module.exports.createTokens = user => {
+    if (!user) return;
     const token = jwt.sign(user, TOKEN_SECRET, {expiresIn: TOKEN_LIFE});
     const refreshToken = jwt.sign(user, REFRESH_TOKEN_SECRET, {expiresIn: REFRESH_TOKEN_LIFE});
 
@@ -15,6 +16,8 @@ module.exports.createTokens = user => {
 };
 
 module.exports.mongoDocToObject = (user, safe) => {
+    if (!user) return;
+
     const modified =  {
         id: user._id,
         username: user.username,

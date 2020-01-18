@@ -18,6 +18,7 @@
     "bcrypt": "^3.0.7",
     "classnames": "^2.2.6",
     "cookie-parser": "^1.4.4",
+    "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "express-session": "^1.17.0",
     "formidable": "^1.2.1",
@@ -49,9 +50,9 @@
     "socket.io-client": "^2.2.0"
   },
   "scripts": {
-    "test": "react-scripts test",
-    "start": "node server/app.js",
+    "start": "NODE_ENV=production node server/app.js",
     "build": "react-scripts build",
+    "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
