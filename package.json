@@ -23,6 +23,7 @@
     "formidable": "^1.2.1",
     "helmet": "^3.21.2",
     "ignore-styles": "^5.0.1",
+    "jimp": "^0.9.3",
     "jsonwebtoken": "^8.5.1",
     "lodash": "^4.17.15",
     "lodash.get": "^4.4.2",
@@ -48,10 +49,9 @@
     "socket.io-client": "^2.2.0"
   },
   "scripts": {
-    "test": "jest",
+    "test": "react-scripts test",
     "start": "node server/app.js",
     "build": "react-scripts build",
-    "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {

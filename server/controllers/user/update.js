@@ -2,6 +2,8 @@ const db = require('../../db');
 const Joi = require('@hapi/joi');
 const bcrypt = require('bcrypt');
 const formidable = require('formidable');
+const jimp = require('jimp');
+
 const path = require('path');
 const fs = require('fs');
 const { promisify } = require('util');
@@ -9,6 +11,16 @@ const {UPLOAD} = require('../../config');
 
 const unlink = promisify(fs.unlink);
 const rename = promisify(fs.rename);
+
+async function normalizeImage(iPath){
+    const image = await jimp.read(iPath);
+    const {width, height} = image.bitmap;
+
+    const param = width >= height ? [0,0,height,height] : [0,0,width,width];
+    await image.crop(...param);
+    await image.quality(75);
+    await image.write(iPath);
+}
 
 function validate(fields, files){
     const schema = Joi.object().keys({
@@ -73,11 +85,14 @@ module.exports = resp => {
             const image = avatar && avatar.name;
 
             if (image){
+                const newPath = path.join(UPLOAD, image);
                 try {
-                    await rename(avatar.path, path.join(UPLOAD, image));
+                    await rename(avatar.path, newPath);
                 } catch(err){
                     response.replyErr(err)
                 }
+
+                await normalizeImage(newPath);
             }
 
             try {

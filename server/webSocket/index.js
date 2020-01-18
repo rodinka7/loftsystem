@@ -20,7 +20,7 @@ io.on('connection', socket => {
                 userId: data.userId,
                 activeRoom: data.roomId
             };
-            socket.emit('users:list', Object.values(clients));
+            socket.emit('users:list', Object.values(clients).filter(item => item.userId !== data.userId));
             socket.broadcast.emit('users:add', clients[socket.id]);
         });
     });
